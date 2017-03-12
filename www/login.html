@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>OpenFB Sample</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+    <script src="bower_components/parse/parse.min.js"></script>
+
+    <link rel="stylesheet" is="custom-style"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+          
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+</head>
+<body>
+
+<div class="content content-padded">
+
+<button class="btn btn-block" onclick="loginFacebook()">Login Facebook</button>
+
+<button class="btn btn-block" onclick="login()">Login</button>
+
+</div>
+
+<!--cordova.js is automatically injected by the Cordova build process-->
+<script src="cordova.js"></script>
+ 
+<script>
+
+    Parse.initialize("nyctwo");
+    Parse.serverURL = 'http://107.170.22.36:1337/parse';
+    /*var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+    if ( app ) {
+        // PhoneGap application
+        // Defaults to sessionStorage for storing the Facebook token
+        openFB.init({appId: '1762597997362966'});
+    }else {
+            // Web page
+            // Load the SDK asynchronously
+            window.fbAsyncInit = function () {
+                Parse.FacebookUtils.init({ // this line replaces FB.init({
+                    appId: '1762597997362966', // Facebook App ID
+                    status: true,  // check Facebook Login status
+                    cookie: true,
+                    xfbml: true,  // initialize Facebook social plugins on the page
+                    version: 'v2.2' // point to the latest Facebook Graph API version
+                });
+
+                // Run code after the Facebook SDK is loaded.
+            };
+
+            (function (d, s, id) {
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) {
+                    return;
+                }
+                js = d.createElement(s);
+                js.id = id;
+                js.src = "//connect.facebook.net/en_US/sdk.js";
+                fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'facebook-jssdk'));
+    }
+
+    //  Uncomment the line below to store the Facebook token in localStorage instead of sessionStorage
+    //  openFB.init({appId: 'YOUR_FB_APP_ID', tokenStore: window.localStorage});
+
+    function loginFacebook() {
+        var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+        if ( app ) {
+            // PhoneGap application
+            var fbLoginSuccess = function (userData) {
+                console.log("UserInfo: ", userData);
+            }
+
+            facebookConnectPlugin.login(["public_profile"], fbLoginSuccess,
+                function loginError (error) {
+                        console.error(error)
+                }
+            );
+        } else {
+            // Web page
+            Parse.FacebookUtils.logIn(null, {
+                success: function (user) {
+
+                    sessionStorage.setItem('id', user.id);
+                    sessionStorage.setItem('token', user.getSessionToken());
+                    //mas setitems
+                    //window.location.href = '/polyPlay/www/';
+                },
+                error: function (user, error) {
+                    alert("User cancelled the Facebook login or did not fully authorize.");
+                }
+            });
+        }
+    }*/
+
+    function login() {
+
+        Parse.User.logIn("joselhuillca@gmail.com", "test123", {
+            success: function (res) {
+                        sessionStorage.setItem('id', res.id);
+                        sessionStorage.setItem('user_type', res.attributes.user_type);
+                        sessionStorage.setItem('school', res.attributes.school);
+                        sessionStorage.setItem('username', res.attributes.name);
+                        sessionStorage.setItem('token', res.getSessionToken());
+
+                        if(sessionStorage.getItem('user_type')=='Profesor'){
+                            alert("Es Profesor!!");;
+                        }else{
+                           var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+                            if ( app ) {
+                                // PhoneGap application
+                                window.location.href = "index.html";
+                            } else {
+                                // Web page
+                                window.location.href = "/polyPlay/www/";
+                            }
+                        }
+            },
+            error: function (user, error) {
+                // The login failed. Check error to see why.
+                log.console("Error: " + error.code + " " + error.message);
+                inputs[i].focus();
+            }
+        });
+        
+    }
+</script>
+</body>
+
+</html>

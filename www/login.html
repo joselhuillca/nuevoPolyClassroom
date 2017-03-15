@@ -30,8 +30,8 @@
 
     Parse.initialize("nyctwo");
     Parse.serverURL = 'http://107.170.22.36:1337/parse';
-    /*var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
-    if ( app ) {
+    var app_type = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+    if ( app_type ) {
         // PhoneGap application
         // Defaults to sessionStorage for storing the Facebook token
         openFB.init({appId: '1762597997362966'});
@@ -66,11 +66,21 @@
     //  openFB.init({appId: 'YOUR_FB_APP_ID', tokenStore: window.localStorage});
 
     function loginFacebook() {
-        var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
-        if ( app ) {
+        var app_ = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+        if ( app_ ) {
             // PhoneGap application
             var fbLoginSuccess = function (userData) {
                 console.log("UserInfo: ", userData);
+                alert(JSON.stringify(userData));
+                // PhoneGap application
+                sessionStorage.setItem('id',userData.userID);
+                sessionStorage.setItem('facebook','yes');
+                /*sessionStorage.setItem('token', user.getSessionToken());
+                //mas setitems
+                sessionStorage.setItem('user_type', res.attributes.user_type);
+                sessionStorage.setItem('school', res.attributes.school);
+                sessionStorage.setItem('username', res.attributes.name);*/
+                window.location.href = "index.html";
             }
 
             facebookConnectPlugin.login(["public_profile"], fbLoginSuccess,
@@ -82,24 +92,30 @@
             // Web page
             Parse.FacebookUtils.logIn(null, {
                 success: function (user) {
-
+                    alert(JSON.stringify(user));
                     sessionStorage.setItem('id', user.id);
                     sessionStorage.setItem('token', user.getSessionToken());
+                    sessionStorage.setItem('facebook','yes');
                     //mas setitems
-                    //window.location.href = '/polyPlay/www/';
+                    /*sessionStorage.setItem('user_type', res.attributes.user_type);
+                    sessionStorage.setItem('school', res.attributes.school);
+                    sessionStorage.setItem('username', res.attributes.name);*/
+                    // Web page
+                    window.location.href = "/polyPlay/www/";
                 },
                 error: function (user, error) {
                     alert("User cancelled the Facebook login or did not fully authorize.");
                 }
             });
         }
-    }*/
+    }
 
     function login() {
 
         Parse.User.logIn("joselhuillca@gmail.com", "test123", {
             success: function (res) {
                         sessionStorage.setItem('id', res.id);
+                        sessionStorage.setItem('facebook','no');
                         sessionStorage.setItem('user_type', res.attributes.user_type);
                         sessionStorage.setItem('school', res.attributes.school);
                         sessionStorage.setItem('username', res.attributes.name);

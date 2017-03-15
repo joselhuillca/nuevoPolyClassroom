@@ -37,6 +37,12 @@
   <span id="browser-sync-binding"></span>
   <template is="dom-bind" id="app">
 
+  <core-pubnub publish_key="pub-c-156a6d5f-22bd-4a13-848d-b5b4d4b36695" subscribe_key="sub-c-f762fb78-2724-11e4-a4df-02ee2ddab7fe" uuid="{{uuid}}">
+    <core-pubnub-subscribe channel="polymer-chat3" id="sub" on-callback="subscribeCallback" on-presence="presenceChanged" on-error="{{error}}">
+    <core-pubnub-publish channel="polymer-chat3" message="" id="pub" on-error="{{error}}"></core-pubnub-publish>
+    <core-pubnub-history channel="polymer-chat3" count="30" on-success="historyRetrieved" on-error="{{error}}"></core-pubnub-history>
+  </core-pubnub-subscribe>
+
     <paper-drawer-panel id="paperDrawerPanel">
       <!-- Drawer Scroll Header Panel -->
       <paper-scroll-header-panel drawer fixed>
@@ -94,6 +100,29 @@
           <iron-pages attr-for-selected="data-route" selected="{{route}}">
             <section data-route="home">
               <poly-myhomeworks id="myhomeworks" ></poly-myhomeworks>
+            </section>
+
+            <section data-route="editor" tabindex="-1">
+                <expense-editor id="expenseEditor" ></expense-editor>
+            </section>
+
+            <section data-route="editorhome" tabindex="-1">
+                <poly-editorhome id="polyeditorhome" ></poly-editorhome>
+            </section>
+
+            <section data-route="chat" tabindex="-1">
+              <div class="layout vertical fit" id="chat">
+                <div class="chat-list flex">
+                  <template is="dom-repeat" items="{{messageList}}" as="message">
+                    <x-chat-list color="{{message.color}}" avatar="{{message.avatar}}" username="{{message.uuid_real}}" text="{{message.text}}" status="{{message.status}}" timestamp="{{message.timestamp}}"></x-chat-list>
+                  </template>
+                </div>
+                <div class="shim"></div>
+
+                <div class="send-message layout horizontal">
+                  <paper-input class="flex" label="Type message..." id="input" value="{{input}}" on-keyup="checkKey"></paper-input>
+                  <paper-fab icon="send" id="sendButton" on-tap="sendMyMessage"></paper-fab>
+                </div>
             </section>
 
             <section data-route="users">
@@ -162,23 +191,47 @@
     });
 
     function logout(){
-      sessionStorage.removeItem('id');
-      sessionStorage.removeItem('email');
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('school');
-      sessionStorage.removeItem('user_type');
-      sessionStorage.removeItem('username');
       var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
       if ( app ) {
           // PhoneGap application
+        sessionStorage.removeItem('id');
+        sessionStorage.removeItem('facebook');
+        sessionStorage.removeItem('email');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('school');
+        sessionStorage.removeItem('user_type');
+        sessionStorage.removeItem('username');
         //page('/');
         //location.reload(false);
         navigator.app.exitApp();
       } else {
           // Web page
-      window.location.href = "/polyPlay/www/";
+          if(sessionStorage.getItem('facebook')==='yes'){
+             //logout current user
+              if ( Parse.User.current() ) {
+                  Parse.User.logOut();
+
+                  // check if really logged out
+                  if (Parse.User.current())
+                      console.log("Failed to log out!");
+              }
+          }
+        sessionStorage.removeItem('id');
+        sessionStorage.removeItem('facebook');
+        sessionStorage.removeItem('email');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('school');
+        sessionStorage.removeItem('user_type');
+        sessionStorage.removeItem('username');
+        window.location.href = "/polyPlay/www/";
       }
     }
+
+    var pubnub = new PubNub({
+        publishKey : 'pub-c-467437f5-5346-4f8c-9ddf-2de1c90a93c8',
+        subscribeKey : 'sub-c-52679430-efef-11e6-b753-0619f8945a4f'
+    })
+    pubnub.subscribe({ channels: ['chatChannel'] })
 
   </script>
 <!-- build:js scripts/app.js -->

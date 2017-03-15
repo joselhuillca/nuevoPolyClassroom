@@ -141,9 +141,279 @@
                     filters: Object
                 },
 
+                observers: [
+                    '_update(filters, expenses)',
+                    '_filtersChanged(filters.*)',
+                    '_update(expenses.*)',
+                    '_update(sortColumn)',
+                    '_update(sortDirection)'
+                ],
+                listeners: {
+                  //'edit-expense': '_editExpense',
+                  'expenses-refresh': '_expensesUpdated'
+                
+                },
+
                 ready: function() {
                     var grid = this.$.expenses;
                     grid.items = [];
+                    this.llenarExpenses(grid);
+                    console.log('termino ready');
+
+                    grid.addEventListener('sort-order-changed', function() {
+                        if (grid.size > 0) {
+                            grid.scrollToStart();
+                            this._update();
+                        }
+                    }.bind(this));
+
+                    grid.addEventListener('selected-items-changed', function() {
+                        var selection = grid.selection.selected();
+                        if (selection.length === 1) {
+                            grid.getItem(selection[0], function(err, item) {
+                                //this.fire('edit-expense', item);
+                                localStorage.setItem("expense", JSON.stringify(item));
+                                //page('/editorhome');
+                                page('/chat');
+                            }.bind(this));
+                        }
+                    }.bind(this));
+
+                    grid.cellClassGenerator = function(cell) {
+                        if (cell.columnName === 'estado') {
+                            return 'estado-' + cell.data.replace(/ /g, '-').toLowerCase();
+                        } else if (cell.columnName === 'total') {
+                            return 'total';
+                        } else if (cell.columnName === 'descripcion') {
+                            return 'descripcion';
+                        }
+                    };
+
+                    grid.then(function() {
+                        grid.columns[0].renderer = function(cell) {
+                            cell.element.innerHTML = moment(cell.data).format('MM/DD/YYYY');
+                        };
+                        /*grid.columns[2].renderer = function(cell) {
+                            cell.element.innerHTML = '$' + cell.data.toFixed(2);
+                        };*/
+                        grid.columns[2].renderer = function(cell) {
+                            var status = cell.data.replace(/_/g, ' ');
+                            status = status.charAt(0).toUpperCase() + status.slice(1);
+                            cell.element.textContent = status;
+                        };
+
+                        grid.header.getCell(0, 2).className = 'total';
+                    });
+                   
+                  /*pubnub.addListener({
+                        message: function (m) {
+                            if (m.message.foo === 'update-list' && m.message.sender=== sessionStorage.getItem('id')) {
+                                   // this.$.fire('expenses-refresh');
+                                //pubnub.fire('expenses-refresh');
+                                app.$.myhomeworks._expensesUpdated();
+                            }else{
+                                if(m.message.foo === 'update-status' && m.message.receiver_id === sessionStorage.getItem('id')){
+                                    app.$.myhomeworks._expensesUpdated();
+                                    app.$.toast.text ='Nueva tarea cotizada!!';
+                                    app.$.toast.show();
+                                }
+                                if(m.message.foo === 'update-statusProgress' && m.message.sender_id === sessionStorage.getItem('id')){
+                                        app.$.myhomeworks._expensesUpdated();
+                                        app.$.toast.text ='Nueva tarea en progreso!!';
+                                        app.$.toast.show();
+                                }
+                            }
+
+                        }
+                    });*/
+                },
+                _expensesUpdated : function () {
+                    var grid = this.$.expenses;
+                    grid.items = [];
+                    this.llenarExpenses(grid);
+                    console.log('termino ready');
+                },
+                llenarExpenses: function(grid){
+                    var TableExpense = Parse.Object.extend("Homework");
+                    var query = new Parse.Query(TableExpense);
+                    
+                    var userClass = Parse.Object.extend("User");
+                    var userObj = new userClass();
+                    userObj.id = sessionStorage.getItem('id');
+
+                    query.equalTo("homework_user", userObj);
+                    query.find({
+                        success: function(results) {
+                            console.log("Successfully retrieved " + results.length + " scores.");
+                            var itemsArray = [];
+                            // Do something with the returned Parse.Object values
+                            for (var i = 0; i < results.length; i++) {
+                                var object = results[i];
+                                //itemsArray.push({_id:object.id, date: object.get('Date'), merchant: object.get('Merchant'), total: object.get('Total'), status: 'New', comment: object.get('Comment')});
+                                if(object.get('status')!='en progreso'){
+                                    itemsArray.push({_id:object.id,
+                                        deadline: object.get('deadline'),
+                                        titulo: object.get('title'),
+                                        estado: object.get('status'),
+                                        descripcion: object.get('description'),
+                                        _attachments: {receipt: object.get('attachment')} });
+                                }
+                                //console.log(object.id + ' - ' + object.get('Date'));
+                                //this.expenses.addRow(object.get('Date'),object.get('Merchant'),object.get('Comment'),object.get('Total'),'status',object.get('Comment'));
+                            }
+                            grid.items = itemsArray;
+                            //console.log(itemsArray);
+                        },
+                        error: function(error) {
+                            console.log("Error: " + error.code + " " + error.message);
+                        }
+                    });
+                },
+                handleResponse: function(res) {
+                    this.expenses = res.detail.response;
+                    var grid = this.$.expenses;
+
+                    grid.items =  this.expenses;
+
+                    grid.addEventListener('sort-order-changed', function() {
+                        if (grid.size > 0) {
+                            grid.scrollToStart();
+                            this._update();
+                        }
+                    }.bind(this));
+
+                    grid.addEventListener('selected-items-changed', function() {
+                        var selection = grid.selection.selected();
+                        if (selection.length === 1) {
+                            grid.getItem(selection[0], function(err, item) {
+
+                                //this.fire('edit-expense', item);
+                                page('/editorhome');
+
+                            }.bind(this));
+                        }
+                    }.bind(this));
+
+                    grid.cellClassGenerator = function(cell) {
+                        if (cell.columnName === 'estado') {
+                            return 'estado-' + cell.data.replace(/ /g, '-').toLowerCase();
+                        } else if (cell.columnName === 'total') {
+                            return 'total';
+                        } else if (cell.columnName === 'comment') {
+                            return 'comment';
+                        }
+                    };
+
+                    grid.then(function() {
+                        grid.columns[0].renderer = function(cell) {
+                            cell.element.innerHTML = moment(cell.data).format('MM/DD/YYYY');
+                        };
+                        grid.columns[2].renderer = function(cell) {
+                            cell.element.innerHTML = '$' + cell.data.toFixed(2);
+                        };
+                        grid.columns[3].renderer = function(cell) {
+                            var status = cell.data.replace(/_/g, ' ');
+                            status = status.charAt(0).toUpperCase() + status.slice(1);
+                            cell.element.textContent = status;
+                        };
+
+                        grid.header.getCell(0, 2).className = 'total';
+                    });
+                },
+
+                _showExpenseEditor: function() {
+                    localStorage.setItem("expense", JSON.stringify({}));
+
+                    page('/editor');
+                },
+
+                _filtersChanged: function() {
+                    if (this.$.expenses.items) {
+                        this.debounce('_filtersChanged', function() {
+                            this._update();
+                        }, 300);
+                    }
+                },
+
+                _update: function() {
+                    if (!this.filters) {
+                        return;
+                    }
+                    var grid = this.$.expenses;
+                    var merchant = this.filters.merchant;
+                    var min = this.filters.min;
+                    var max = this.filters.max;
+                    var status = this.filters.status;
+                    var start = this.filters.start;
+                    var end = this.filters.end;
+                    var sort;
+                    var direction;
+                    if (grid.sortOrder && grid.sortOrder[0]) {
+                        sort = grid.columns[grid.sortOrder[0].column].name;
+                        direction = grid.sortOrder[0].direction;
+                    }
+
+                    // Filter
+                    var result = this.expenses
+                        .filter(function(expense) {
+                            return !(merchant && expense.titulo
+                                .toUpperCase().indexOf(merchant.toUpperCase()) < 0);
+                        })
+                        /*.filter(function(expense) {
+                            return !(min && expense.total < min);
+                        })
+                        .filter(function(expense) {
+                            return !(max && expense.total > max);
+                        })*/
+                        .filter(function(expense) {
+                            if (status && status.length > 0) {
+                                return status.indexOf(expense.estado) >= 0;
+                            } else {
+                                return false;
+                            }
+                        })
+                        .filter(function(expense) {
+                            if (start) {
+                                var startDate = moment(start);
+                                return !!(startDate.isValid() && moment(expense.deadline).isAfter(startDate));
+                            } else {
+                                return true;
+                            }
+                        })
+                        .filter(function(expense) {
+                            if (end) {
+                                var endDate = moment(end);
+                                return !!(endDate.isValid() && moment(expense.deadline).isBefore(endDate));
+                            } else {
+                                return true;
+                            }
+                        });
+
+                    // Sort
+                    if (sort) {
+                        var sortProperty = sort;
+                        var sortDirection = direction || 'desc';
+                        var datePattern = /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/;
+                        result.sort(function(a, b) {
+                            var res;
+                            if (!isNaN(a[sortProperty])) {
+                                res = parseInt(a[sortProperty], 10) - parseInt(b[sortProperty], 10);
+                            } else if (datePattern.test(a[sortProperty])) {
+                                // Sort dates with moment.js.
+                                res = moment(a[sortProperty]).isBefore(moment(b[sortProperty])) ? 1 : -1;
+                            } else {
+                                // Let's pretend everything that's not a number or date is a string.
+                                res = a[sortProperty].localeCompare(b[sortProperty]);
+                            }
+
+                            if ('desc' === sortDirection) {
+                                res *= -1;
+                            }
+                            return res;
+                        });
+                    }
+
+                    grid.items = result;
                 }
             });
         })();

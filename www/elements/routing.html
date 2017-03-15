@@ -32,6 +32,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       next();
     }
 
+    function setFocus(selected){
+          document.querySelector('section[data-route="' + selected + '"]').focus();
+      }
+
     // Routes
     page('*', scrollToTop, closeDrawer, function(ctx, next) {
       next();
@@ -43,6 +47,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     page(app.baseUrl, function() {
       app.route = 'home';
+    });
+
+    page('/editor', function() {
+        app.route = 'editor';
+        setFocus(app.route);
+
+        var expenseEditor = document.querySelector('#expenseEditor');
+        var localObj = JSON.parse(localStorage.getItem("expense"));
+
+        expenseEditor.open(localObj);
+
+    });
+
+    page('/editorhome', function() {
+        app.route = 'editorhome';
+        setFocus(app.route);
+
+        var expenseEditor = document.querySelector('#polyeditorhome');
+        var localObj = JSON.parse(localStorage.getItem("expense"));
+
+        expenseEditor.open(localObj);
+
+    });
+
+     page('/chat', function() {
+        app.route = 'chat';
+        setFocus(app.route);
     });
 
     page('/users', function() {

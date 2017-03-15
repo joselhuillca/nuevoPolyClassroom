@@ -15,7 +15,11 @@
     "polymer": "Polymer/polymer#^1.3.0",
     "parse": "^1.9.2",
     "app-route": "*",
-    "vaadin-grid": "^1.2.1"
+    "vaadin-grid": "^1.2.1",
+    "vaadin-upload": "^1.1.2",
+    "vaadin-combo-box": "^1.3.2",
+    "vaadin-date-picker": "^1.2.1",
+    "pubnub-element": "^4.0.1"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

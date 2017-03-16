@@ -30,6 +30,26 @@
   <!-- build:js bower_components/webcomponentsjs/webcomponents-lite.min.js -->
   <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <!-- endbuild -->
+  <!-- endbuild-->
+ <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.4.4.js"></script>
+
+ <style>
+
+      paper-fab {
+          position: fixed;
+      }
+      #frozen {
+          height: 300px;
+      }
+
+  </style>
+  <!-- For shared styles, shared-styles.html import in elements.html -->
+  <style is="custom-style" include="shared-styles"></style>
+  <link rel="stylesheet" href="css/style.css">
+
+  <style is="custom-style">
+      /* Polymer elelments custom styles must be defined here */
+    </style>
 
 </head>
 
@@ -236,7 +256,8 @@
   </script>
 <!-- build:js scripts/app.js -->
   <script src="scripts/app.js"></script>
-  <!-- endbuild-->
+
+  <script src="js/apppub.js"></script>
  
 </body>
 

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>OpenFB Sample</title>
+    <title>Salvando el semestre</title>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 
     <script src="bower_components/parse/parse.min.js"></script>
@@ -12,15 +12,107 @@
           
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 
+    <link rel="stylesheet" is="custom-style" href="bower_components/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" is="custom-style" href="bower_components/bootstrap-social/bootstrap-social.css">
+    
+    <!-- Importing the elements file -->
+    <link rel="import" href="elements/elements.html">
+    <!-- build:css styles/main.css -->
+    <link rel="stylesheet" href="css/main.css"> 
+
+    <!-- endbuild-->
+    <style>
+        #botonFacebok{
+            border:0;outline:0 none;
+        }
+
+        html /deep/ .layout.center-justified, html /deep/ .layout.center-center {
+            -ms-flex-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+        }
+        html /deep/ .layout.center, html /deep/ .layout.center-center {
+            -ms-flex-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+        html /deep/ .layout.vertical {
+            -ms-flex-direction: column;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+        }
+        html /deep/ .layout.horizontal, html /deep/ .layout.horizontal-reverse, html /deep/ .layout.vertical, html /deep/ .layout.vertical-reverse {
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+        }
+
+        .layout.center-justified, .layout.center-center {
+            -ms-flex-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+        }
+        .layout.center, .layout.center-center {
+            -ms-flex-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+        .layout.vertical {
+            -ms-flex-direction: column;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+        }
+        .layout.horizontal, .layout.horizontal-reverse, .layout.vertical, .layout.vertical-reverse {
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+        }
+
+        html /deep/ .flex-10 {
+            -ms-flex: 10;
+            -webkit-flex: 10;
+            flex: 10;
+        }
+        .flex-10 {
+            -ms-flex: 10;
+            -webkit-flex: 10;
+            flex: 10;
+        }
+    </style>
+
 </head>
 <body>
 
-<div class="content content-padded">
+<div id="container">
+    <div class="layout vertical content">
+        <div class="flex">
+            <iron-image src="images/logo.png"></iron-image>
+        </div>
 
-<button class="btn btn-block" onclick="loginFacebook()">Login Facebook</button>
+        <div class="flex-10 layout vertical center center-justified">
+            <p class="big_text">Salvando el semestre</p>
 
-<button class="btn btn-block" onclick="login()">Login</button>
+            <div class="vertical layout">
+                <div class="btn btn-block btn-social btn-facebook center flex-1">
+                    <span class="fa fa-facebook"></span>
+                    <button class="btn btn-block btn-social btn-facebook" id= "botonFacebok" onclick="loginFacebook()">Sign in with Facebook</button>
+                </div>
+                <br>
 
+                <button class="btn btn-block" onclick="login()">Login</button>
+            </div>
+
+            
+            <div onclick="app_login.helpers.clickHandler(event)">
+                <poly-login></poly-login>
+                <poly-signup></poly-signup>
+                
+            </div>
+        </div>
+        <div class="flex layout vertical end-justified footer">
+            <p>Universitarios enseñando a universitarios</p>
+        </div>
+    </div>
 </div>
 
 <!--cordova.js is automatically injected by the Cordova build process-->
@@ -38,15 +130,24 @@
     }else {
             // Web page
             // Load the SDK asynchronously
-            window.fbAsyncInit = function () {
-                Parse.FacebookUtils.init({ // this line replaces FB.init({
-                    appId: '1762597997362966', // Facebook App ID
-                    status: true,  // check Facebook Login status
-                    cookie: true,
-                    xfbml: true,  // initialize Facebook social plugins on the page
-                    version: 'v2.2' // point to the latest Facebook Graph API version
-                });
-
+            window.fbAsyncInit = function() {
+                    // FB JavaScript SDK configuration and setup
+                    FB.init({
+                        appId      : '1762597997362966', // FB App ID
+                        status     : true,  // check Facebook Login status
+                        cookie     : true,  // enable cookies to allow the server to access the session
+                        xfbml      : true,  // parse social plugins on this page
+                        version    : 'v2.8' // use graph api version 2.8
+                    });
+                    
+                    // Check whether the user already logged in
+                    /*FB.getLoginStatus(function(response) {
+                        if (response.status === 'connected') {
+                            //display user data
+                            getFbUserData();
+                            fbLogout();
+                        }
+                    });*/
                 // Run code after the Facebook SDK is loaded.
             };
 
@@ -65,7 +166,7 @@
     //  Uncomment the line below to store the Facebook token in localStorage instead of sessionStorage
     //  openFB.init({appId: 'YOUR_FB_APP_ID', tokenStore: window.localStorage});
 
-    function loginFacebook() {
+    function loginFacebook(){
         var app_ = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
         if ( app_ ) {
             // PhoneGap application
@@ -90,23 +191,14 @@
             );
         } else {
             // Web page
-            Parse.FacebookUtils.logIn(null, {
-                success: function (user) {
-                    alert(JSON.stringify(user));
-                    sessionStorage.setItem('id', user.id);
-                    sessionStorage.setItem('token', user.getSessionToken());
-                    sessionStorage.setItem('facebook','yes');
-                    //mas setitems
-                    /*sessionStorage.setItem('user_type', res.attributes.user_type);
-                    sessionStorage.setItem('school', res.attributes.school);
-                    sessionStorage.setItem('username', res.attributes.name);*/
-                    // Web page
-                    window.location.href = "/polyPlay/www/";
-                },
-                error: function (user, error) {
+            FB.login(function (response) {
+                if (response.authResponse) {
+                    // Get and display the user profile data
+                    saveUserFacebook();
+                } else {
                     alert("User cancelled the Facebook login or did not fully authorize.");
                 }
-            });
+            }, {scope: 'email'});
         }
     }
 
@@ -142,6 +234,84 @@
         });
         
     }
+
+    // Logout from facebook
+    function fbLogout() {
+        var app_ = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+        if ( app_ ) {
+            // PhoneGap application
+        }else{
+            //web
+            FB.logout(function(response) {
+                alert(response);
+            });
+        }
+    }
+
+    function saveUserFacebook(){
+        var app_ = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+        if ( app_ ) {
+            // PhoneGap application
+        }else{
+            //web
+            FB.api('/me', {locale: 'en_US', fields: 'id,first_name,last_name,email,link,gender,locale,picture'},
+            function (response) {
+                alert('<p><b>FB ID:</b> '+response.id+'</p><p><b>Name:</b> '+response.first_name+' '+response.last_name+'</p><p><b>Email:</b> '+response.email+'</p><p><b>Gender:</b> '+response.gender+'</p><p><b>Locale:</b> '+response.locale+'</p><p><b>Picture:</b> <img src="'+response.picture.data.url+'"/></p><p><b>FB Profile:</b> <a target="_blank" href="'+response.link+'">click to view profile</a></p>');
+                //usename: response.first_name + ' ' + response.last_name
+                //email: response.email
+                //ocupacion: Estudiante
+                //carrera: ??
+                var GameScore = Parse.Object.extend("User");
+                var query = new Parse.Query(GameScore);
+                query.equalTo("username",  response.id );
+                query.find({
+                    success: function(results) {
+                        if (results.length == 1 ) {
+                            UserFacebook(response,occupation);
+                        }
+                        else {
+                            registrarUserFacebook(response);
+                        }
+                    },
+                    error: function(error) {
+                        //error
+                    }
+                });
+            });
+        }
+    }
+    //si el usuario si esta en la base de datos
+    function UserFacebook(response,occupation){
+        //
+    }
+    //si el usuario no esta en la base de datos
+    function registrarUserFacebook(response){
+        //
+    }
+
+    var AppLogin = function(){
+        this.is_mobile = false;
+        this.helpers = {
+            clickHandler: function(e){
+                var button = e.target;
+                while (!button.hasAttribute('data-dialog') && button !== document.body) {
+                    button = button.parentElement;
+                }
+
+                if (!button.hasAttribute('data-dialog')) {
+                    return;
+                }
+
+                var id = button.getAttribute('data-dialog');
+                var dialog = document.getElementById(id);
+                if (dialog) {
+
+                    dialog.open();
+                }
+            }
+        };
+    };
+    var app_login = new AppLogin();
 </script>
 </body>
 
